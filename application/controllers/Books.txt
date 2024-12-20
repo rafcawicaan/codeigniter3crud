@@ -1,0 +1,67 @@
+<?php
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+require APPPATH . 'libraries/RestController.php';
+use chriskacerguis\RestServer\RestController;
+
+// require APPPATH . 'libraries/Format.php';
+
+class Book extends RestController
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Book_model');
+    }
+
+    // Fetch all books
+    public function index_get()
+    {
+        $books = $this->Book_model->get_all_books();
+        $this->response($books, RestController::HTTP_OK);
+    }
+
+    // Fetch a single book
+    public function book_get($id)
+    {
+        $book = $this->Book_model->get_book($id);
+        if ($book) {
+            $this->response($book, RestController::HTTP_OK);
+        } else {
+            $this->response(['message' => 'Book not found'], RestController::HTTP_NOT_FOUND);
+        }
+    }
+
+    // Create a new book
+    public function book_post()
+    {
+        $data = $this->input->post();
+        if ($this->Book_model->insert_book($data)) {
+            $this->response(['message' => 'Book created'], RestController::HTTP_CREATED);
+        } else {
+            $this->response(['message' => 'Failed to create book'], RestController::HTTP_BAD_REQUEST);
+        }
+    }
+
+    // Update a book
+    public function book_put($id)
+    {
+        $data = $this->put();
+        if ($this->Book_model->update_book($id, $data)) {
+            $this->response(['message' => 'Book updated'], RestController::HTTP_OK);
+        } else {
+            $this->response(['message' => 'Failed to update book'], RestController::HTTP_BAD_REQUEST);
+        }
+    }
+
+    // Delete a book
+    public function book_delete($id)
+    {
+        if ($this->Book_model->delete_book($id)) {
+            $this->response(['message' => 'Book deleted'], RestController::HTTP_OK);
+        } else {
+            $this->response(['message' => 'Failed to delete book'], RestController::HTTP_BAD_REQUEST);
+        }
+    }
+}
